@@ -1,26 +1,30 @@
 'use-strict';
 
 import gulp from 'gulp';
-import browserify from 'browserify';
-import buffer from 'vinyl-buffer';
-import source from 'vinyl-source-stream';
 import stylus from 'gulp-stylus';
-import uglify from 'gulp-uglify';
+import rename from 'gulp-rename';
+import bootstrap from 'bootstrap-styl';
+import webpack from 'webpack-stream';
 
-gulp.task('browserify', () => {
-  return browserify('public/javascripts/app.js')
-    .transform('babelify')
-    .bundle()
-    .pipe(source('bundle.min.js'))
-    .pipe(buffer())
-    .pipe(uglify())
-    .pipe(gulp.dest('public/javascripts'));
+gulp.task('webpack', () => {
+  return gulp.src('public/javascripts/app.js')
+    .pipe(webpack({
+      module: {
+        loaders: [{
+          test: /\.js$/,
+          loader: 'babel'
+        }, ],
+      }
+    }))
+    .pipe(rename('bundle.js'))
+    .pipe(gulp.dest('public/javascripts/'));
 });
 
 gulp.task('stylus', () => {
   gulp.src('public/stylesheets/app.styl')
     .pipe(stylus({
-      compress: true
+      compress: true,
+      use: bootstrap()
     }))
     .pipe(gulp.dest('public/stylesheets'));
 });
